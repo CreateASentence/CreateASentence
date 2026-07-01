@@ -978,17 +978,16 @@ window.banUserAccount = async () => {
         const rankName = rank[currentLang === 'ar' ? 'ar' : 'name'];
         
         let nameClass = u.nameGradient ? "name-gradient" : "";
-let avatarClass = u.avatarGradient ? "avatar-gradient" : "";
-let customStyle = window.getGradientStyle(u); // Fetch the custom colors
-let ownerTag = u.role === 'Owner' ? `<span class="owner-tag">Owner</span>` : '';
+        let avatarClass = u.avatarGradient ? "avatar-gradient" : "";
+        let customStyle = window.getGradientStyle(u); 
+        let rawGrad = customStyle.replace('style="', '').replace('"', '');
+        let ownerTag = u.role === 'Owner' ? `<span class="owner-tag">Owner</span>` : '';
 
-html += `<div class="profile-card ${rank.class}" onclick="closeModal('players-list-modal'); openModal('player-modal'); showModal('${p.uid}')">
-  <!-- Apply customStyle if avatarGradient is true -->
-  <img src="${u.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=fallback'}" class="avatar-mini ${avatarClass}" ${u.avatarGradient ? customStyle : ''}>
-  
-  <!-- Apply customStyle if nameGradient is true -->
-  <div><strong style="font-size:1.1em;" class="${nameClass}" ${u.nameGradient ? customStyle : ''}>${u.displayName || 'Player'}</strong> ${ownerTag} ${p.uid===rm.host?'👑':''}<br><small style="color:var(--subtext); font-weight:600;">${u.username ? '@'+u.username : 'Loading...'} • Lv ${lvlData.level} (${rankName || ''}) • Rank #${pos > 0 ? pos : '-'}</small></div>
-</div>`;
+        html += `<div class="profile-card ${rank.class}" onclick="closeModal('players-list-modal'); openModal('player-modal'); showModal('${p.uid}')">
+          <img src="${u.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=fallback'}" class="avatar-mini ${avatarClass}" ${u.avatarGradient ? customStyle : ''}>
+          
+          <div><strong style="font-size:1.1em; ${u.nameGradient ? rawGrad : ''}" class="${nameClass}">${u.displayName || 'Player'}</strong> ${ownerTag} ${p.uid===rm.host?'👑':''}<br><small style="color:var(--subtext); font-weight:600;">${u.username ? '@'+u.username : 'Loading...'} • Lv ${lvlData.level} (${rankName || ''}) • Rank #${pos > 0 ? pos : '-'}</small></div>
+        </div>`;
       });
       document.getElementById('modal-players-list-container').innerHTML = html || `<p style="text-align:center; color:var(--subtext);">No players found.</p>`;
   };
@@ -1142,18 +1141,18 @@ html += `<div class="profile-card ${rank.class}" onclick="closeModal('players-li
     const mailToUse = email || `${safeUname}@cts.local`;
     
     try {
-      if (action === 'register') {
-        // --- NEW BAN CHECK ---
-        const banRef = ref(db, `banned_usernames/${safeUname}`);
-        const banSnap = await get(banRef);
-        if (banSnap.exists()) {
-            const reason = banSnap.val().reason || "Banned by Administrator";
-            err.innerText = `This username has been permanently banned. Reason: ${reason}`;
-            err.style.display = 'block';
-            return;
-        }
-        // ---------------------
+      // --- UNIVERSAL BAN CHECK (Applies to both Login & Register) ---
+      const banRef = ref(db, `banned_usernames/${safeUname}`);
+      const banSnap = await get(banRef);
+      if (banSnap.exists()) {
+          const reason = banSnap.val().reason || "Banned by Administrator";
+          err.innerText = `This username was taken and was banned for reason: "${reason}"`;
+          err.style.display = 'block';
+          return; // This instantly blocks the login/register attempt
+      }
+      // ------------------------------------------------------------------
 
+      if (action === 'register') {
         const usernameRef = ref(db, `usernames/${safeUname}`);
         const snapshot = await get(usernameRef);
         
@@ -1322,6 +1321,15 @@ try {
                 signOut(auth);
                 return;
             }
+        } else {
+            // NEW: If they are authenticated but their database profile is completely gone
+            showScreen('banned-screen');
+            document.getElementById('banned-desc').innerText = "Your account has been permanently deleted.";
+            signOut(auth);
+            return;
+        }
+        
+        if(allUsersCache[user.uid]) {
 
             if(userData.prefLang && userData.prefLang !== currentLang && !langSelected) {
                 setLanguage(userData.prefLang);
@@ -1416,8 +1424,9 @@ try {
     let nameClass = userData.nameGradient ? "name-gradient" : "";
     let avatarClass = userData.avatarGradient ? "avatar-gradient" : "";
     let ownerTag = userData.role === 'Owner' ? `<span class="owner-tag">Owner</span>` : '';
+    let rawGrad = window.getGradientStyle(userData).replace('style="', '').replace('"', '');
 
-    card.innerHTML = `<img src="${userData.photoURL}" class="avatar-mini ${avatarClass}" ${window.getGradientStyle(userData)}><div><strong style="font-size:1.3em;" class="${nameClass}" ${window.getGradientStyle(userData)}>${userData.displayName}</strong> ${ownerTag}<br><small style="color:var(--subtext);">Lv ${lvlData.level} (${rank[currentLang === 'ar' ? 'ar' : 'name']})</small></div>`;
+    card.innerHTML = `<img src="${userData.photoURL}" class="avatar-mini ${avatarClass}" ${window.getGradientStyle(userData)}><div><strong style="font-size:1.3em; ${rawGrad}" class="${nameClass}">${userData.displayName}</strong> ${ownerTag}<br><small style="color:var(--subtext);">Lv ${lvlData.level} (${rank[currentLang === 'ar' ? 'ar' : 'name']})</small></div>`;
   }
 
   // UPDATED LEADERBOARD UI FOR OWNER STYLES
@@ -1428,11 +1437,12 @@ try {
       let nameClass = p.nameGradient ? "name-gradient" : "";
       let avatarClass = p.avatarGradient ? "avatar-gradient" : "";
       let ownerTag = p.role === 'Owner' ? `<span class="owner-tag">Owner</span>` : '';
+      let rawGrad = window.getGradientStyle(p).replace('style="', '').replace('"', '');
 
       html += `<div class="profile-card ${getRank(lvl).class}" onclick="openModal('player-modal'); showModal('${p.uid}')">
         <span style="font-weight:bold; width: 35px; color: var(--subtext); font-size: 1.1em;">#${i+1}</span>
         <img src="${p.photoURL}" class="avatar-mini ${avatarClass}" ${window.getGradientStyle(p)}>
-        <div><strong style="font-size: 1.1em;" class="${nameClass}" ${window.getGradientStyle(p)}>${p.displayName}</strong> ${ownerTag}<br><small style="color:var(--subtext);">Lv ${lvl}</small></div>
+        <div><strong style="font-size: 1.1em; ${rawGrad}" class="${nameClass}">${p.displayName}</strong> ${ownerTag}<br><small style="color:var(--subtext);">Lv ${lvl}</small></div>
         <strong style="margin-left:auto; color: var(--primary); font-size: 1.1em;">${p.exp || 0} XP</strong>
       </div>`;
     });
@@ -1466,10 +1476,11 @@ try {
             let nameClass = p.nameGradient ? "name-gradient" : "";
             let avatarClass = p.avatarGradient ? "avatar-gradient" : "";
             let ownerTag = p.role === 'Owner' ? `<span class="owner-tag">Owner</span>` : '';
+            let rawGrad = window.getGradientStyle(p).replace('style="', '').replace('"', '');
 
             fList.innerHTML += `<div class="profile-card ${getRank(lvl).class}" onclick="openModal('player-modal'); showModal('${uid}')">
               <img src="${p.photoURL}" class="avatar-mini ${avatarClass}" ${window.getGradientStyle(p)}>
-              <div><strong style="font-size: 1.1em;" class="${nameClass}" ${window.getGradientStyle(p)}>${p.displayName}</strong> ${ownerTag}<br><small style="color:${statusColor}; font-weight:600; display:flex; align-items:center;"><span class="status-dot ${statusClass}"></span> ${statusText}</small></div>
+              <div><strong style="font-size: 1.1em; ${rawGrad}" class="${nameClass}">${p.displayName}</strong> ${ownerTag}<br><small style="color:${statusColor}; font-weight:600; display:flex; align-items:center;"><span class="status-dot ${statusClass}"></span> ${statusText}</small></div>
             </div>`;
         }
     });
