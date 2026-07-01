@@ -299,13 +299,6 @@
         </div>
       </div>
         
-        <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; color: var(--text); font-size: 15px;">
-            <label class="switch">
-                <input type="checkbox" id="admin-toggle-avatar-grad" onchange="toggleCosmetic('avatarGradient')">
-                <span class="slider"></span>
-            </label>
-            Enable RGB Avatar Outline
-        </label>
       </div>
     </div>
     <div id="banned-screen" class="hidden screen-view">
@@ -1390,8 +1383,8 @@ window.uploadProfilePic = (event) => {
             let ownerTag = p.role === 'Owner' ? `<span class="owner-tag">Owner</span>` : '';
 
             fList.innerHTML += `<div class="profile-card ${getRank(lvl).class}" onclick="openModal('player-modal'); showModal('${uid}')">
-              <img src="${p.photoURL}" class="avatar-mini ${avatarClass}">
-              <div><strong style="font-size: 1.1em;" class="${nameClass}">${p.displayName}</strong> ${ownerTag}<br><small style="color:${statusColor}; font-weight:600; display:flex; align-items:center;"><span class="status-dot ${statusClass}"></span> ${statusText}</small></div>
+              <img src="${p.photoURL}" class="avatar-mini ${avatarClass}" ${window.getGradientStyle(p)}>
+              <div><strong style="font-size: 1.1em;" class="${nameClass}" ${window.getGradientStyle(p)}>${p.displayName}</strong> ${ownerTag}<br><small style="color:${statusColor}; font-weight:600; display:flex; align-items:center;"><span class="status-dot ${statusClass}"></span> ${statusText}</small></div>
             </div>`;
         }
     });
@@ -1456,13 +1449,28 @@ window.uploadProfilePic = (event) => {
     
     document.getElementById('modal-avatar').src = p.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=fallback';
     
+    const rawGradStyle = window.getGradientStyle(p).replace('style="', '').replace('"', '');
+
     const displayNameEl = document.getElementById('modal-displayname');
     displayNameEl.innerHTML = p.displayName || 'Player';
     if(p.role === 'Owner') displayNameEl.innerHTML += ` <span class="owner-tag">Owner</span>`;
-    if(p.nameGradient) displayNameEl.className = "name-gradient"; else displayNameEl.className = "";
+    
+    if(p.nameGradient) { 
+        displayNameEl.className = "name-gradient"; 
+        displayNameEl.style.cssText = rawGradStyle; 
+    } else { 
+        displayNameEl.className = ""; 
+        displayNameEl.style.cssText = ""; 
+    }
     
     const avatarEl = document.getElementById('modal-avatar');
-    if(p.avatarGradient) avatarEl.classList.add('avatar-gradient'); else avatarEl.classList.remove('avatar-gradient');
+    if(p.avatarGradient) { 
+        avatarEl.classList.add('avatar-gradient'); 
+        avatarEl.style.cssText = rawGradStyle; 
+    } else { 
+        avatarEl.classList.remove('avatar-gradient'); 
+        avatarEl.style.cssText = ""; 
+    }
 
     document.getElementById('modal-username').innerText = p.username ? `@${p.username}` : '';
     document.getElementById('modal-global-rank').innerText = pos > 0 ? `${t.globalRank}${pos}` : '';
@@ -2037,8 +2045,12 @@ window.uploadProfilePic = (event) => {
           snap.forEach(c => {
               const m = c.val(); 
               let nameClass = "";
-              if(allUsersCache[m.sender] && allUsersCache[m.sender].nameGradient) nameClass = "name-gradient";
-              box.innerHTML += `<div><strong style="color:var(--primary); font-size:15px;" class="${nameClass}">${m.name}:</strong> <span style="color:var(--text);">${m.text}</span></div>`;
+              let gradStyle = "";
+              if(allUsersCache[m.sender] && allUsersCache[m.sender].nameGradient) {
+                  nameClass = "name-gradient";
+                  gradStyle = window.getGradientStyle(allUsersCache[m.sender]);
+              }
+              box.innerHTML += `<div><strong ${gradStyle} style="color:var(--primary); font-size:15px;" class="${nameClass}">${m.name}:</strong> <span style="color:var(--text);">${m.text}</span></div>`;
           });
           if(isBottom) box.scrollTop = box.scrollHeight;
           if(document.getElementById('lobby-chat-wrapper').classList.contains('hidden') === false) window.showChatTemp();
