@@ -65,7 +65,7 @@
     .owner-tag { background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; vertical-align: middle; margin-left: 5px; font-weight: bold; text-transform: uppercase; box-shadow: 0 0 8px var(--danger); display: inline-block; }
     
     .name-gradient { 
-        background: var(--user-gradient, linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)); 
+        background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); 
         background-size: 200% auto; 
         color: transparent !important; 
         -webkit-background-clip: text; 
@@ -77,7 +77,7 @@
     
     .avatar-gradient { 
         border: 3px solid transparent; 
-        background-image: linear-gradient(var(--input-bg), var(--input-bg)), var(--user-gradient, linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)); 
+        background-image: linear-gradient(var(--input-bg), var(--input-bg)), linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); 
         background-origin: border-box; 
         background-clip: content-box, border-box; 
         animation: shine 3s linear infinite; 
@@ -259,6 +259,19 @@
       </div>
       <h2 style="color: var(--admin-gold); margin-bottom: 20px; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);">🛡️ Owner Control Panel</h2>
       
+      <div style="text-align: left; margin-bottom: 25px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; border: 1px solid var(--admin-gold);">
+        <h3 style="margin-top: 0; color: white;">User Moderation</h3>
+        <p style="color: var(--subtext); font-size: 13px;">Enter the exact Username (not display name) to moderate.</p>
+        <input type="text" id="admin-target-user" placeholder="Target Username (e.g. john123)">
+        <p id="admin-action-msg" style="color: var(--success); font-size: 14px; font-weight: bold; margin-top: 10px;"></p>
+        
+        <div class="action-buttons">
+           <button class="danger" onclick="executeAdminAction('ban')">Ban User</button>
+           <button class="secondary" onclick="executeAdminAction('unban')">Unban User</button>
+           <button class="danger" style="background: rgba(229,62,62,0.2);" onclick="executeAdminAction('delete')">Soft Delete Account</button>
+        </div>
+      </div>
+
       <div style="text-align: left; margin-bottom: 25px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
         <h3 style="margin-top: 0; color: white;">Cosmetic Perks</h3>
         
@@ -267,38 +280,17 @@
                 <input type="checkbox" id="admin-toggle-name-grad" onchange="toggleCosmetic('nameGradient')">
                 <span class="slider"></span>
             </label>
-            Enable Custom Name Gradient
+            Enable RGB Name Gradient
         </label>
         
-        <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; color: var(--text); font-size: 15px; margin-bottom: 25px;">
+        <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; color: var(--text); font-size: 15px;">
             <label class="switch">
                 <input type="checkbox" id="admin-toggle-avatar-grad" onchange="toggleCosmetic('avatarGradient')">
                 <span class="slider"></span>
             </label>
-            Enable Custom Avatar Outline
+            Enable RGB Avatar Outline
         </label>
-
-        <h4 style="margin: 0 0 10px 0; color: var(--subtext); font-size: 14px;">Select up to 4 Colors (Check to enable):</h4>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
-                <input type="checkbox" id="admin-grad-c1-enable" onchange="updateAdminGradientColors()" checked style="width: 20px; margin: 0; cursor: pointer;">
-                <input type="color" id="admin-grad-c1-val" value="#ff0000" onchange="updateAdminGradientColors()" style="padding: 0; width: 40px; height: 35px; border: none; background: transparent; cursor: pointer;">
-            </div>
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
-                <input type="checkbox" id="admin-grad-c2-enable" onchange="updateAdminGradientColors()" checked style="width: 20px; margin: 0; cursor: pointer;">
-                <input type="color" id="admin-grad-c2-val" value="#ffff00" onchange="updateAdminGradientColors()" style="padding: 0; width: 40px; height: 35px; border: none; background: transparent; cursor: pointer;">
-            </div>
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
-                <input type="checkbox" id="admin-grad-c3-enable" onchange="updateAdminGradientColors()" checked style="width: 20px; margin: 0; cursor: pointer;">
-                <input type="color" id="admin-grad-c3-val" value="#00ff00" onchange="updateAdminGradientColors()" style="padding: 0; width: 40px; height: 35px; border: none; background: transparent; cursor: pointer;">
-            </div>
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
-                <input type="checkbox" id="admin-grad-c4-enable" onchange="updateAdminGradientColors()" checked style="width: 20px; margin: 0; cursor: pointer;">
-                <input type="color" id="admin-grad-c4-val" value="#00ffff" onchange="updateAdminGradientColors()" style="padding: 0; width: 40px; height: 35px; border: none; background: transparent; cursor: pointer;">
-            </div>
-        </div>
       </div>
-        
     </div>
     <div id="banned-screen" class="hidden screen-view">
       <div style="font-size: 4em; margin-bottom: 10px; filter: drop-shadow(0 0 15px rgba(229,62,62,0.5));">🛑</div>
@@ -831,15 +823,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 
   function getRank(level) { return Ranks.find(r => level <= r.max) || Ranks[Ranks.length-1]; }
 
-window.getGradientStyle = (u) => { 
-      if(u && u.gradientColors && u.gradientColors.length > 0) { 
-          let c = u.gradientColors; 
-          if(c.length === 1) c.push(c[0]); 
-          return `style="--user-gradient: linear-gradient(90deg, ${c.join(', ')}, ${c[0]});"`; 
-      } 
-      return ''; 
-  };
-
   // ADMIN HELPER: Get UID by Username
   function getUidByUsername(uname) {
       const target = uname.toLowerCase().trim();
@@ -877,27 +860,12 @@ window.getGradientStyle = (u) => {
       }
   };
 
-// ADMIN COSMETIC TOGGLES & CUSTOM COLORS
+  // ADMIN COSMETIC TOGGLE
   window.toggleCosmetic = async (type) => {
       if(!isAdmin || !user) return;
       let isEnabled = document.getElementById(`admin-toggle-${type === 'nameGradient' ? 'name-grad' : 'avatar-grad'}`).checked;
       let updates = {}; updates[type] = isEnabled ? true : null;
       await update(ref(db, `users/${user.uid}`), updates);
-  };
-
-  window.updateAdminGradientColors = async () => {
-      if(!isAdmin || !user) return;
-      let colors = [];
-      for(let i=1; i<=4; i++) {
-          if(document.getElementById(`admin-grad-c${i}-enable`).checked) {
-              colors.push(document.getElementById(`admin-grad-c${i}-val`).value);
-          }
-      }
-      
-      // Fallback: If they uncheck all of them, default to red
-      if(colors.length === 0) colors = ["#ff0000"]; 
-      
-      await update(ref(db, `users/${user.uid}`), { gradientColors: colors });
   };
 
   // UPDATED RENDER LOBBY PLAYERS
@@ -1248,24 +1216,10 @@ window.uploadProfilePic = (event) => {
                 document.getElementById('toggle-friend-req').checked = userData.disableFriendRequests;
             }
 
-            // Sync Admin Toggles & Custom Colors
+            // Sync Admin Toggles
             if(isAdmin) {
                 document.getElementById('admin-toggle-name-grad').checked = userData.nameGradient === true;
                 document.getElementById('admin-toggle-avatar-grad').checked = userData.avatarGradient === true;
-                
-                if(userData.gradientColors) {
-                    for(let i = 1; i <= 4; i++) {
-                        let enableBox = document.getElementById(`admin-grad-c${i}-enable`);
-                        let colorPicker = document.getElementById(`admin-grad-c${i}-val`);
-                        
-                        if(userData.gradientColors[i-1]) {
-                            enableBox.checked = true;
-                            colorPicker.value = userData.gradientColors[i-1];
-                        } else {
-                            enableBox.checked = false;
-                        }
-                    }
-                }
             }
 
             updateHubProfile();
@@ -1331,7 +1285,7 @@ window.uploadProfilePic = (event) => {
     let avatarClass = userData.avatarGradient ? "avatar-gradient" : "";
     let ownerTag = userData.role === 'Owner' ? `<span class="owner-tag">Owner</span>` : '';
 
-    card.innerHTML = `<img src="${userData.photoURL}" class="avatar-mini ${avatarClass}" ${window.getGradientStyle(userData)}><div><strong style="font-size:1.3em;" class="${nameClass}" ${window.getGradientStyle(userData)}>${userData.displayName}</strong> ${ownerTag}<br><small style="color:var(--subtext);">Lv ${lvlData.level} (${rank[currentLang === 'ar' ? 'ar' : 'name']})</small></div>`;
+    card.innerHTML = `<img src="${userData.photoURL}" class="avatar-mini ${avatarClass}"><div><strong style="font-size:1.3em;" class="${nameClass}">${userData.displayName}</strong> ${ownerTag}<br><small style="color:var(--subtext);">Lv ${lvlData.level} (${rank[currentLang === 'ar' ? 'ar' : 'name']})</small></div>`;
   }
 
   // UPDATED LEADERBOARD UI FOR OWNER STYLES
@@ -1345,8 +1299,8 @@ window.uploadProfilePic = (event) => {
 
       html += `<div class="profile-card ${getRank(lvl).class}" onclick="openModal('player-modal'); showModal('${p.uid}')">
         <span style="font-weight:bold; width: 35px; color: var(--subtext); font-size: 1.1em;">#${i+1}</span>
-        <img src="${p.photoURL}" class="avatar-mini ${avatarClass}" ${window.getGradientStyle(p)}>
-        <div><strong style="font-size: 1.1em;" class="${nameClass}" ${window.getGradientStyle(p)}>${p.displayName}</strong> ${ownerTag}<br><small style="color:var(--subtext);">Lv ${lvl}</small></div>
+        <img src="${p.photoURL}" class="avatar-mini ${avatarClass}">
+        <div><strong style="font-size: 1.1em;" class="${nameClass}">${p.displayName}</strong> ${ownerTag}<br><small style="color:var(--subtext);">Lv ${lvl}</small></div>
         <strong style="margin-left:auto; color: var(--primary); font-size: 1.1em;">${p.exp || 0} XP</strong>
       </div>`;
     });
@@ -1382,8 +1336,8 @@ window.uploadProfilePic = (event) => {
             let ownerTag = p.role === 'Owner' ? `<span class="owner-tag">Owner</span>` : '';
 
             fList.innerHTML += `<div class="profile-card ${getRank(lvl).class}" onclick="openModal('player-modal'); showModal('${uid}')">
-              <img src="${p.photoURL}" class="avatar-mini ${avatarClass}" ${window.getGradientStyle(p)}>
-              <div><strong style="font-size: 1.1em;" class="${nameClass}" ${window.getGradientStyle(p)}>${p.displayName}</strong> ${ownerTag}<br><small style="color:${statusColor}; font-weight:600; display:flex; align-items:center;"><span class="status-dot ${statusClass}"></span> ${statusText}</small></div>
+              <img src="${p.photoURL}" class="avatar-mini ${avatarClass}">
+              <div><strong style="font-size: 1.1em;" class="${nameClass}">${p.displayName}</strong> ${ownerTag}<br><small style="color:${statusColor}; font-weight:600; display:flex; align-items:center;"><span class="status-dot ${statusClass}"></span> ${statusText}</small></div>
             </div>`;
         }
     });
@@ -1448,28 +1402,13 @@ window.uploadProfilePic = (event) => {
     
     document.getElementById('modal-avatar').src = p.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=fallback';
     
-    const rawGradStyle = window.getGradientStyle(p).replace('style="', '').replace('"', '');
-
     const displayNameEl = document.getElementById('modal-displayname');
     displayNameEl.innerHTML = p.displayName || 'Player';
     if(p.role === 'Owner') displayNameEl.innerHTML += ` <span class="owner-tag">Owner</span>`;
-    
-    if(p.nameGradient) { 
-        displayNameEl.className = "name-gradient"; 
-        displayNameEl.style.cssText = rawGradStyle; 
-    } else { 
-        displayNameEl.className = ""; 
-        displayNameEl.style.cssText = ""; 
-    }
+    if(p.nameGradient) displayNameEl.className = "name-gradient"; else displayNameEl.className = "";
     
     const avatarEl = document.getElementById('modal-avatar');
-    if(p.avatarGradient) { 
-        avatarEl.classList.add('avatar-gradient'); 
-        avatarEl.style.cssText = rawGradStyle; 
-    } else { 
-        avatarEl.classList.remove('avatar-gradient'); 
-        avatarEl.style.cssText = ""; 
-    }
+    if(p.avatarGradient) avatarEl.classList.add('avatar-gradient'); else avatarEl.classList.remove('avatar-gradient');
 
     document.getElementById('modal-username').innerText = p.username ? `@${p.username}` : '';
     document.getElementById('modal-global-rank').innerText = pos > 0 ? `${t.globalRank}${pos}` : '';
@@ -2044,12 +1983,8 @@ window.uploadProfilePic = (event) => {
           snap.forEach(c => {
               const m = c.val(); 
               let nameClass = "";
-              let gradStyle = "";
-              if(allUsersCache[m.sender] && allUsersCache[m.sender].nameGradient) {
-                  nameClass = "name-gradient";
-                  gradStyle = window.getGradientStyle(allUsersCache[m.sender]);
-              }
-              box.innerHTML += `<div><strong ${gradStyle} style="color:var(--primary); font-size:15px;" class="${nameClass}">${m.name}:</strong> <span style="color:var(--text);">${m.text}</span></div>`;
+              if(allUsersCache[m.sender] && allUsersCache[m.sender].nameGradient) nameClass = "name-gradient";
+              box.innerHTML += `<div><strong style="color:var(--primary); font-size:15px;" class="${nameClass}">${m.name}:</strong> <span style="color:var(--text);">${m.text}</span></div>`;
           });
           if(isBottom) box.scrollTop = box.scrollHeight;
           if(document.getElementById('lobby-chat-wrapper').classList.contains('hidden') === false) window.showChatTemp();
