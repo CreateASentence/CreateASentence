@@ -309,6 +309,17 @@
             </div>
         </div>
       </div>
+
+<div style="text-align: left; background: rgba(229, 62, 62, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(229, 62, 62, 0.4);">
+        <h3 style="margin-top: 0; color: var(--danger);">Hammer of Justice (Permanent Ban)</h3>
+        <p style="color: var(--subtext); font-size: 14px; margin-bottom: 15px;">This will completely delete their account and prevent this username from ever being registered again.</p>
+        
+        <input type="text" id="ban-username-input" placeholder="Enter Username (without @)" style="margin-bottom: 10px;">
+        <input type="text" id="ban-message-input" placeholder="Reason for Ban..." style="margin-bottom: 15px;">
+        
+        <button onclick="banUserAccount()" class="danger">Ban & Delete Account</button>
+        <p id="admin-action-msg" style="font-size: 14px; font-weight: bold; margin-top: 15px;"></p>
+      </div>
         
     </div>
     <div id="banned-screen" class="hidden screen-view">
@@ -859,6 +870,49 @@ window.getGradientStyle = (u) => {
   }
 
   // ADMIN ACTIONS EXECUTION
+
+window.banUserAccount = async () => {
+      if(!isAdmin || !user) return;
+      const targetUname = document.getElementById('ban-username-input').value.trim().toLowerCase();
+      const banMessage = document.getElementById('ban-message-input').value.trim();
+      const msgBox = document.getElementById('admin-action-msg');
+
+      if(!targetUname) { msgBox.innerText = "Please enter a username."; msgBox.style.color = "var(--danger)"; return; }
+
+      if(!confirm(`Are you sure you want to PERMANENTLY ban @${targetUname} and delete their account?`)) return;
+
+      const targetUid = getUidByUsername(targetUname);
+      if(!targetUid) { msgBox.innerText = "User not found."; msgBox.style.color = "var(--danger)"; return; }
+
+      msgBox.innerText = "Processing ban...";
+      msgBox.style.color = "var(--text)";
+
+      try {
+          // 1. Add to permanent banned_usernames registry
+          await set(ref(db, `banned_usernames/${targetUname}`), {
+              reason: banMessage || "Violation of Terms of Service",
+              bannedAt: Date.now(),
+              bannedBy: user.uid
+          });
+
+          // 2. Remove their username from the active usernames list
+          await remove(ref(db, `usernames/${targetUname}`));
+
+          // 3. Completely delete their user profile
+          await remove(ref(db, `users/${targetUid}`));
+
+          msgBox.innerText = `User @${targetUname} permanently banned & deleted.`;
+          msgBox.style.color = "var(--danger)";
+          
+          document.getElementById('ban-username-input').value = '';
+          document.getElementById('ban-message-input').value = '';
+      } catch(e) {
+          msgBox.innerText = "Error executing ban. Check database rules.";
+          msgBox.style.color = "var(--danger)";
+          console.error(e);
+      }
+  };
+
   window.executeAdminAction = async (actionType) => {
       if(!isAdmin) return;
       const targetUname = document.getElementById('admin-target-user').value.trim();
@@ -1089,6 +1143,17 @@ html += `<div class="profile-card ${rank.class}" onclick="closeModal('players-li
     
     try {
       if (action === 'register') {
+        // --- NEW BAN CHECK ---
+        const banRef = ref(db, `banned_usernames/${safeUname}`);
+        const banSnap = await get(banRef);
+        if (banSnap.exists()) {
+            const reason = banSnap.val().reason || "Banned by Administrator";
+            err.innerText = `This username has been permanently banned. Reason: ${reason}`;
+            err.style.display = 'block';
+            return;
+        }
+        // ---------------------
+
         const usernameRef = ref(db, `usernames/${safeUname}`);
         const snapshot = await get(usernameRef);
         
