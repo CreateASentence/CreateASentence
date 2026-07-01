@@ -183,6 +183,17 @@
 
   <canvas id="bg-canvas"></canvas>
 
+<div id="admin-close-modal" class="modal-overlay" onclick="if(event.target === this) closeModal('admin-close-modal')">
+    <div class="modal-content">
+      <h2 style="color: var(--danger); margin-top: 0;">Close Lobby</h2>
+      <p style="color: var(--text);">Are you sure you want to forcibly close room <strong id="admin-close-room-id" style="color: var(--primary);"></strong>?</p>
+      <div class="action-buttons">
+         <button id="btn-confirm-admin-close" class="danger">Close Lobby</button>
+         <button class="secondary" onclick="closeModal('admin-close-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div id="rejoin-modal" class="modal-overlay">
     <div class="modal-content">
       <h2 id="ui-rejoin-title" style="color: var(--primary); margin-top: 0;">Game in Progress</h2>
@@ -1742,7 +1753,15 @@ try {
     
     const selectedLang = document.getElementById('game-lang-select').value;
     
-    await set(ref(db, `rooms/${roomId}`), { state: 'lobby', isPrivate: priv, password: priv ? document.getElementById('lobby-password').value : "", host: user.uid, gameLang: selectedLang, players: {} });
+    await set(ref(db, `rooms/${roomId}`), { 
+    state: 'lobby', 
+    isPrivate: priv, 
+    password: priv ? document.getElementById('lobby-password').value : "", 
+    host: user.uid, 
+    gameLang: selectedLang, 
+    players: {}, 
+    createdAt: Date.now() // <-- Added timestamp
+});
     await joinRoom(roomId);
   };
 
@@ -1790,7 +1809,11 @@ try {
   }
 
   window.loadServerBrowser = async () => {
-    const list = document.getElementById('server-list'); list.innerHTML = "<p style='color:var(--subtext);'>Loading...</p>";
+    // 1. Run the passive cleanup first (from our previous fix!)
+    if (window.cleanupOldLobbies) await window.cleanupOldLobbies(); 
+
+    const list = document.getElementById('server-list'); 
+    list.innerHTML = "<p style='color:var(--subtext);'>Loading...</p>";
     
     const searchQ = document.getElementById('server-search-input').value.toLowerCase().trim();
     const langF = document.getElementById('server-lang-filter').value;
@@ -1818,17 +1841,18 @@ try {
         }
         
         if(!matchesSearch) return;
-
         found = true;
         
         let isLobby = rm.state === 'lobby';
         let statusBadge = isLobby ? `<span style="color:var(--success);">Waiting</span>` : `<span style="color:#F6AD55;">In Progress</span>`;
-        let joinDisabled = (!isLobby || pCnt >= 6) ? `disabled style="opacity:0.5; cursor:not-allowed;"` : ``;
+        
+        // ---> ADMIN LOGIC: Create the X button if the user is an Admin
+        let adminBtn = isAdmin ? `<button class="danger icon-btn" style="padding: 4px 10px; margin-left: 10px; font-size: 12px;" onclick="promptAdminClose('${c.key}')">✖</button>` : '';
 
         list.innerHTML += `
         <div class="profile-card tier-stone" style="background: rgba(45, 55, 72, 0.5); flex-wrap: wrap;">
             <div style="flex: 1; min-width: 150px;">
-                <strong style="font-size:1.2em; color:var(--primary);">Room ${c.key}</strong> 🌍<br>
+                <strong style="font-size:1.2em; color:var(--primary); display: flex; align-items: center;">Room ${c.key} 🌍 ${adminBtn}</strong>
                 <small style="color:var(--subtext); font-weight:bold;">${pCnt} / 6 Players • ${statusBadge}</small>
             </div>
             <div style="display: flex; gap: 8px;">
@@ -1839,6 +1863,26 @@ try {
       });
     }
     if(!found) list.innerHTML = `<p style="color:var(--subtext); font-size:15px;">${TRANSLATIONS[currentLang].noServers}</p>`;
+  };
+
+  // --- NEW ADMIN FUNCTIONS ---
+  // Opens the confirmation modal
+  window.promptAdminClose = (roomId) => {
+      document.getElementById('admin-close-room-id').innerText = roomId;
+      document.getElementById('btn-confirm-admin-close').onclick = () => executeAdminClose(roomId);
+      openModal('admin-close-modal');
+  };
+
+  // Executes the deletion
+  window.executeAdminClose = async (roomId) => {
+      closeModal('admin-close-modal');
+      try {
+          await remove(ref(db, `rooms/${roomId}`));
+          window.loadServerBrowser(); // Refresh the browser list immediately
+      } catch (error) {
+          console.error("Failed to close lobby:", error);
+          alert("Error: You might not have the correct Firebase database permissions to delete this room.");
+      }
   };
 
   let spectateUnsubscribe = null;
