@@ -2421,7 +2421,11 @@ try {
         rootUpdates[`users/${user.uid}/roundXpClaimed/${roomId}_${gameIdx}_${localPlayerRound}`] = true;
     }
 
-    await update(ref(db), rootUpdates);
+    await Promise.all(
+      Object.entries(rootUpdates).map(([path, value]) =>
+        update(ref(db, path), value)
+      )
+    );
   };
 
   function handleRevealState(rm) {
