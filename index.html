@@ -416,13 +416,13 @@
       </div>
 
       <div style="text-align: left; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-        <label style="font-size: 14px; color: var(--text); font-weight: bold; display: block; margin-bottom: 10px;">🎨 Theme Color</label>
+        <label id="ui-theme-title" style="font-size: 14px; color: var(--text); font-weight: bold; display: block; margin-bottom: 10px;">🎨 Theme Color</label>
         <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
            <input type="color" id="theme-picker" onchange="updateTheme(this.value)" style="padding: 0; width: 60px; height: 40px; cursor: pointer; border: none; background: transparent; border-radius: 8px;">
-           <span style="color: var(--subtext); font-size: 13px;">Pick your custom accent color</span>
+           <span id="ui-pick-color" style="color: var(--subtext); font-size: 13px;">Pick your custom accent color</span>
         </div>
 
-        <label style="font-size: 14px; color: var(--text); font-weight: bold; display: block; margin-bottom: 10px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">🔒 Privacy</label>
+        <label id="ui-privacy-title" style="font-size: 14px; color: var(--text); font-weight: bold; display: block; margin-bottom: 10px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">🔒 Privacy</label>
         <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; color: var(--subtext); font-size: 15px;">
             <label class="switch">
                 <input type="checkbox" id="toggle-friend-req" onchange="updatePrivacy()">
@@ -779,7 +779,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
       submitAns: "Submit", waitOthers: "Waiting for other players to finish writing...",
       revealTitle: "Reveal Phase!", spinDesc: "Spinning to select the next paper...", rateText: "Rate this sentence!",
       gameOver: "Match Over!", playAgainTitle: "Play Again?", playAgainBtn: "Play Again", leaveBtn: "Leave Lobby",
-      errReq: "Username/Email required!", errShort: "Username must be 3+ chars!", errEmpty: "Please enter a word!", errEn: "English letters only!", errEd: "Action must end in 'ed'!", errAr: "Arabic letters only!", errArName: "Arabic or English letters only for names!", errFull: "Lobby is full (Max 6)!", errNotFound: "Lobby not found or deleted.",
+      errReq: "Username/Email required!", errShort: "Username must be 3+ chars!", errEmpty: "Please enter a word!", errEn: "English letters only!", errEd: "Action must be 1 word ending in 'ed' or 2 words ending in 'at'!", errAr: "Arabic letters only!", errArName: "Arabic or English letters only for names!", errFull: "Lobby is full (Max 6)!", errNotFound: "Lobby not found or deleted.",
       friends: "Friends", notifs: "Notifications", chat: "Chat", send: "Send",
       online: "Online", offline: "Offline", inGame: "In Game",
       addFriend: "Add Friend", removeFriend: "✔️ Friends (Remove)", reqSent: "Awaiting Accept", reqDisabled: "Requests Disabled",
@@ -796,7 +796,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
       leaveTitle: "Leaving Game", leaveDesc: "Are you sure you want to leave?",
       confirmIn: "Confirm in", seconds: "seconds.", wait: "Wait...", confirmLeave: "Confirm Leave", cancel: "Cancel", disableReqsText: "Disable Friend Requests",
       historyTitle: "Game History", btnHistory: "📜 Game History", wrote: "wrote:", paperSwapped: "(Paper is swapped)", page: "Page", reqDisabledMsg: "This player is not accepting friend requests.",
-      searchPlaceholder: "Search ID or Username...", allLang: "All Languages", specTitle: "Spectating Room: ", viewTypist: "👁️ View Activity", leaveSpec: "🚪 Leave Spectate", typingNow: "Typing right now:", curSentence: "Current Sentence:"
+      searchPlaceholder: "Search ID or Username...", allLang: "All Languages", specTitle: "Spectating Room: ", viewTypist: "👁️ View Activity", leaveSpec: "🚪 Leave Spectate", typingNow: "Typing right now:", curSentence: "Current Sentence:",
+      joinText: "Join", spectateText: "Spectate", leaveGame: "🚪 Leave Game", pickColor: "Pick your custom accent color", themeColorTitle: "🎨 Theme Color", privacyTitle: "🔒 Privacy", roomWord: "Room", playersWord: "Players", inProgress: "In Progress", waiting: "Waiting"
     },
     ar: {
       title: "اصنع الجملة", topProf: "الملف الشخصي", back: "رجوع →",
@@ -809,7 +810,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
       submitAns: "تأكيد", waitOthers: "في انتظار باقي اللاعبين لإنهاء الكتابة...",
       revealTitle: "مرحلة الكشف!", spinDesc: "جاري اختيار الورقة التالية...", rateText: "قيم هذه الجملة!",
       gameOver: "انتهت المباراة!", playAgainTitle: "العب مرة أخرى؟", playAgainBtn: "العب مرة أخرى", leaveBtn: "مغادرة الغرفة",
-      errReq: "اسم المستخدم/البريد مطلوب!", errShort: "الاسم يجب أن يكون 3 أحرف فأكثر!", errEmpty: "الرجاء كتابة كلمة!", errEn: "حروف إنجليزية فقط!", errEd: "الفعل يجب أن ينتهي بـ ed!", errAr: "حروف عربية فقط!", errArName: "حروف عربية أو إنجليزية للأسماء فقط!", errFull: "الغرفة ممتلئة (الحد الأقصى 6)!", errNotFound: "لم يتم العثور على الغرفة أو تم حذفها.",
+      errReq: "اسم المستخدم/البريد مطلوب!", errShort: "الاسم يجب أن يكون 3 أحرف فأكثر!", errEmpty: "الرجاء كتابة كلمة!", errEn: "حروف إنجليزية فقط!", errEd: "الفعل يجب أن يكون كلمة واحدة تنتهي بـ ed أو كلمتين تنتهي بـ at!", errAr: "حروف عربية فقط!", errArName: "حروف عربية أو إنجليزية للأسماء فقط!", errFull: "الغرفة ممتلئة (الحد الأقصى 6)!", errNotFound: "لم يتم العثور على الغرفة أو تم حذفها.",
       friends: "الأصدقاء", notifs: "الإشعارات", chat: "الدردشة", send: "إرسال",
       online: "متصل", offline: "غير متصل", inGame: "في اللعبة",
       addFriend: "إضافة صديق", removeFriend: "✔️ أصدقاء (إزالة)", reqSent: "في انتظار القبول", reqDisabled: "الطلبات معطلة",
@@ -826,7 +827,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
       leaveTitle: "مغادرة اللعبة", leaveDesc: "هل أنت متأكد أن تريد المغادرة؟",
       confirmIn: "التأكيد بعد", seconds: "ثواني.", wait: "انتظر...", confirmLeave: "تأكيد المغادرة", cancel: "إلغاء", disableReqsText: "تعطيل طلبات الصداقة",
       historyTitle: "سجل الالعاب", btnHistory: "📜 سجل الالعاب", wrote: "كتب:", paperSwapped: "(تم تبديل الورقة)", page: "صفحة", reqDisabledMsg: "هذا اللاعب لا يقبل طلبات الصداقة.",
-      searchPlaceholder: "ابحث بالمعرف أو اسم المستخدم...", allLang: "كل اللغات", specTitle: "مشاهدة الغرفة: ", viewTypist: "👁️ عرض النشاط", leaveSpec: "🚪 مغادرة المشاهدة", typingNow: "يكتب الآن:", curSentence: "الجملة الحالية:"
+      searchPlaceholder: "ابحث بالمعرف أو اسم المستخدم...", allLang: "كل اللغات", specTitle: "مشاهدة الغرفة: ", viewTypist: "👁️ عرض النشاط", leaveSpec: "🚪 مغادرة المشاهدة", typingNow: "يكتب الآن:", curSentence: "الجملة الحالية:",
+      joinText: "انضمام", spectateText: "مشاهدة", leaveGame: "🚪 مغادرة اللعبة", pickColor: "اختر لون التمييز المخصص لك", themeColorTitle: "🎨 لون المظهر", privacyTitle: "🔒 الخصوصية", roomWord: "غرفة", playersWord: "لاعبين", inProgress: "قيد اللعب", waiting: "في الانتظار"
     }
   };
 
@@ -1056,6 +1058,11 @@ window.banUserAccount = async () => {
     el('ui-spec-title', t.specTitle);
     el('ui-spec-typing-now', t.typingNow);
     el('ui-spec-cur-sentence', t.curSentence);
+    
+    el('ui-btn-leave-game', t.leaveGame);
+    el('ui-pick-color', t.pickColor);
+    el('ui-theme-title', t.themeColorTitle);
+    el('ui-privacy-title', t.privacyTitle);
 
     updateHubProfile();
     updateFriendsUI();
@@ -1322,10 +1329,17 @@ try {
                 return;
             }
         } else {
-            // NEW: If they are authenticated but their database profile is completely gone
-            showScreen('banned-screen');
-            document.getElementById('banned-desc').innerText = "Your account has been permanently deleted.";
-            signOut(auth);
+            // NEW: Give it a 2-second grace period for new registrations
+            setTimeout(async () => {
+                if (auth.currentUser) {
+                    const checkSnap = await get(ref(db, `users/${auth.currentUser.uid}`));
+                    if (!checkSnap.exists()) {
+                        showScreen('banned-screen');
+                        document.getElementById('banned-desc').innerText = "Your account has been permanently deleted.";
+                        signOut(auth);
+                    }
+                }
+            }, 2000);
             return;
         }
         
@@ -1923,8 +1937,9 @@ try {
         if(!matchesSearch) return;
         found = true;
         
+        let t = TRANSLATIONS[currentLang];
         let isLobby = rm.state === 'lobby';
-        let statusBadge = isLobby ? `<span style="color:var(--success);">Waiting</span>` : `<span style="color:#F6AD55;">In Progress</span>`;
+        let statusBadge = isLobby ? `<span style="color:var(--success);">${t.waiting || 'Waiting'}</span>` : `<span style="color:#F6AD55;">${t.inProgress || 'In Progress'}</span>`;
         
         // ---> ADMIN LOGIC: Create the X button if the user is an Admin
         let adminBtn = isAdmin ? `<button class="danger icon-btn" style="padding: 4px 10px; margin-left: 10px; font-size: 12px;" onclick="promptAdminClose('${c.key}')">✖</button>` : '';
@@ -1932,12 +1947,12 @@ try {
         list.innerHTML += `
         <div class="profile-card tier-stone" style="background: rgba(45, 55, 72, 0.5); flex-wrap: wrap;">
             <div style="flex: 1; min-width: 150px;">
-                <strong style="font-size:1.2em; color:var(--primary); display: flex; align-items: center;">Room ${c.key} 🌍 ${adminBtn}</strong>
-                <small style="color:var(--subtext); font-weight:bold;">${pCnt} / 6 Players • ${statusBadge}</small>
+                <strong style="font-size:1.2em; color:var(--primary); display: flex; align-items: center;">${t.roomWord || 'Room'} ${c.key} 🌍 ${adminBtn}</strong>
+                <small style="color:var(--subtext); font-weight:bold;">${pCnt} / 6 ${t.playersWord || 'Players'} • ${statusBadge}</small>
             </div>
             <div style="display: flex; gap: 8px;">
-                ${isLobby && pCnt < 6 ? `<button style="width:auto;padding:8px 15px;" onclick="attemptJoinLobby('${c.key}')">Join</button>` : ''}
-                <button style="width:auto;padding:8px 15px;" class="secondary" onclick="openSpectateMenu('${c.key}')">Spectate</button>
+                ${isLobby && pCnt < 6 ? `<button style="width:auto;padding:8px 15px;" onclick="attemptJoinLobby('${c.key}')">${t.joinText || 'Join'}</button>` : ''}
+                <button style="width:auto;padding:8px 15px;" class="secondary" onclick="openSpectateMenu('${c.key}')">${t.spectateText || 'Spectate'}</button>
             </div>
         </div>`;
       });
@@ -2388,7 +2403,18 @@ try {
     
     if(glang === 'en' && rData.type !== 'prep') {
       if(!/^[A-Za-z\s]+$/.test(val)) { err.innerText = t.errEn; err.style.display = 'block'; return; }
-      if(rData.type === 'action' && !val.toLowerCase().endsWith('ed')) { err.innerText = t.errEd; err.style.display = 'block'; return; }
+      
+      if(rData.type === 'action') {
+          const words = val.trim().split(/\s+/);
+          const isOneWordEd = words.length === 1 && val.toLowerCase().endsWith('ed');
+          const isTwoWordsAt = words.length === 2 && val.toLowerCase().endsWith('at');
+          
+          if (!(isOneWordEd || isTwoWordsAt)) {
+              err.innerText = t.errEd;
+              err.style.display = 'block';
+              return;
+          }
+      }
     }
     
     if(glang === 'ar') {
